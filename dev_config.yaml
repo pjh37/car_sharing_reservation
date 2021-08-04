@@ -1,0 +1,11 @@
+database:
+  User: admin
+  Password: admin
+  Host: localhost
+  Port: 27017
+  DBName: car_sharing
+  CollectionName: reservation
+
+server:
+  Host: localhost
+  Port: 8084

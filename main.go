@@ -4,11 +4,11 @@ import (
 	"context"
 	"fmt"
 	"log"
+	"study_car_sharing/api"
 	. "study_car_sharing/config"
 
 	"net/http"
 
-	"github.com/gorilla/mux"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
@@ -23,14 +23,16 @@ func main() {
 	startServer(config)
 }
 func startServer(config Config) error {
-	conn := DatabaseConnection(config.Database)
-	router := mux.NewRouter()
+	client, conn := DatabaseConnection(config.Database)
+	defer DatabaseDisconnect(context.TODO(), client)
+	router := api.ServerRunner{DB: conn}
+
 	log.Printf(conn.Name())
-	log.Print(http.ListenAndServe(fmt.Sprintf(":%d", 5000), router))
+	log.Print(http.ListenAndServe(fmt.Sprintf(":%d", 5000), router.Route()))
 	//mongo:=conn.Database(config.Database.DBName).Collection(config.Database.CollectionName)
 	return nil
 }
-func DatabaseConnection(dbConfig DatabaseConfig) *mongo.Database {
+func DatabaseConnection(dbConfig DatabaseConfig) (*mongo.Client, *mongo.Database) {
 	clientOptions := options.Client().ApplyURI("mongodb://" + dbConfig.Host + ":" + dbConfig.Port).
 		SetAuth(options.Credential{
 			Username: dbConfig.User,
@@ -50,5 +52,9 @@ func DatabaseConnection(dbConfig DatabaseConfig) *mongo.Database {
 	}
 	fmt.Println("MongoDB Connection Made")
 	mongo := client.Database(dbConfig.DBName)
-	return mongo
+	return client, mongo
+}
+
+func DatabaseDisconnect(ctx context.Context, client *mongo.Client) {
+	client.Disconnect(ctx)
 }
