@@ -23,12 +23,12 @@ func main() {
 	startServer(config)
 }
 func startServer(config Config) error {
-	client, conn := DatabaseConnection(config.Database)
-	defer DatabaseDisconnect(context.TODO(), client)
-	router := api.ServerRunner{DB: conn}
+	//client, conn := DatabaseConnection(config.Database)
+	//defer DatabaseDisconnect(context.TODO(), client)
+	router := api.ServerRunner{}
 
-	log.Printf(conn.Name())
-	log.Print(http.ListenAndServe(fmt.Sprintf(":%d", 5000), router.Route()))
+	//log.Printf(conn.Name())
+	log.Print(http.ListenAndServe(fmt.Sprintf(":%d", 5001), router.Route()))
 	//mongo:=conn.Database(config.Database.DBName).Collection(config.Database.CollectionName)
 	return nil
 }
